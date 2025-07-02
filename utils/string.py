@@ -1,9 +1,12 @@
 import logging
 
+from typing import Any
+
 from jinja2 import Template
 
 
 logger = logging.getLogger(__file__)
+logger.setLevel(logging.INFO)
 
 
 class StringUtils:
@@ -15,11 +18,13 @@ class StringUtils:
 
     @staticmethod
     def populate_variables(
-        template_text: str, variables: dict[str, any]
+        template_text: str, variables: dict[str, Any] = None
     ) -> str:
+        if variables is None:
+            variables = {}
         try:
-            logger.info({'TEMPLATE_TEXT': template_text})
-            logger.info({'TEMPLATE_VARIABLES': {**variables}})
+            # logger.info({'TEMPLATE_TEXT': template_text})
+            # logger.info({'TEMPLATE_VARIABLES': {**variables}})
             template = Template(template_text)
             populated_template = template.render(**variables)
             logger.info({'POPULATED_TEMPLATE': populated_template})
