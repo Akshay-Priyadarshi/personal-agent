@@ -8,4 +8,5 @@ dependencies = [
     "a2a-sdk>=0.2.9",
     "google-adk>=1.4.2",
     "jinja2>=3.1.6",
+    "typer>=0.16.0",
 ]
