@@ -1,1 +1,0 @@
-from expense_tracking_assistant.models.expense import Expense

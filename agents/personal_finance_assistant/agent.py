@@ -1,4 +1,6 @@
-from personal_finance_assistant.a2a_agent import A2ACompatibleAgent
+from agents.personal_finance_assistant.agent_executor import (
+    PersonalFinancialAgentExecutor,
+)
 
 
-root_agent = A2ACompatibleAgent([]).create_agent()
+root_agent = PersonalFinancialAgentExecutor({}).agent
