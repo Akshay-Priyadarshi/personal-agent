@@ -7,5 +7,5 @@ run_adk_web:
 run_a2a_server:
 	uv run __main__.py
 
-run_a2a_client:
-	uv run a2a_client.py
+run_cli_client:
+	uv run clients/cli

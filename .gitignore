@@ -209,6 +209,5 @@ __marimo__/
 
 # Environment files
 .env
-!.example.env
 # Local sqlite files
 *.db

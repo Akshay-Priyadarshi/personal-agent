@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
-"""a2a_client.py — Interactive A2A chat client."""
+"""__main__.py — Interactive A2A CLI chat client."""
 
+# imports
 import asyncio
 import logging
+import os
 import traceback
 
 from uuid import uuid4
 
+import dotenv
 import httpx
 import typer
+import typer.utils
 
 from a2a.client import A2ACardResolver, A2AClient
 from a2a.types import (
@@ -20,11 +24,21 @@ from a2a.types import (
 )
 
 
+# configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('a2a_client')
 
+# configure environment varables
+dotenv.load_dotenv(dotenv.find_dotenv())
 
-async def chat(agent_url: str):
+
+async def chat(
+    agent_url: str = typer.Option(
+        'http://127.0.0.1:8080/',
+        envvar='AGENT_A2A_URL',
+        help='Agent URL',
+    ),
+):
     """Starts an interactive chat session with the A2A agent.
     Connects to the agent server, sends user input as messages, and displays
     agent responses.
@@ -41,7 +55,6 @@ async def chat(agent_url: str):
         )
         agent_card = await agent_card_resolver.get_agent_card()
 
-        typer.clear()
         logger.info(
             f"""Connected to agent at {agent_url}
 Agent Card: {agent_card.model_dump_json(indent=2)}
@@ -101,5 +114,6 @@ Type '/exit' to quit.
                 logger.error(f'Error: {e}\n{traceback.format_exc()}')
 
 
+# run the chat function
 if __name__ == '__main__':
-    typer.run(asyncio.run(chat('http://127.0.0.1:8080/')))
+    typer.run(asyncio.run(chat(agent_url=os.getenv('AGENT_A2A_URL'))))
