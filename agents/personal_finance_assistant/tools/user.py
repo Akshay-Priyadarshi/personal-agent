@@ -26,7 +26,7 @@ def save_user_name(
         message: message from the tool
         result: dict of the outputs from tool
     """
-    user_name_from_state = tool_context.state['user:name']
+    user_name_from_state = tool_context.state.get('user:name')
     tool_context.state['user:name'] = new_user_name
     response = ToolResponse(
         message='saved user name to state',

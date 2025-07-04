@@ -24,27 +24,26 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('a2a_client')
 
 
-async def chat():
+async def chat(agent_url: str):
     """Starts an interactive chat session with the A2A agent.
     Connects to the agent server, sends user input as messages, and displays
     agent responses.
     Type '/exit' to quit the chat.
     """
-    server_url = 'http://127.0.0.1:8080/'
     async with (
         httpx.AsyncClient(timeout=30) as agent_httpx_client,
     ):
         agent_a2a_client = A2AClient(
-            url=server_url, httpx_client=agent_httpx_client
+            url=agent_url, httpx_client=agent_httpx_client
         )
         agent_card_resolver = A2ACardResolver(
-            httpx_client=agent_httpx_client, base_url=server_url
+            httpx_client=agent_httpx_client, base_url=agent_url
         )
         agent_card = await agent_card_resolver.get_agent_card()
 
         typer.clear()
         logger.info(
-            f"""Connected to agent at {server_url}
+            f"""Connected to agent at {agent_url}
 Agent Card: {agent_card.model_dump_json(indent=2)}
 Type '/exit' to quit.
         """
@@ -103,4 +102,4 @@ Type '/exit' to quit.
 
 
 if __name__ == '__main__':
-    typer.run(asyncio.run(chat()))
+    typer.run(asyncio.run(chat('http://127.0.0.1:8080/')))

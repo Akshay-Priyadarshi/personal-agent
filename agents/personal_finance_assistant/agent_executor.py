@@ -7,6 +7,7 @@ from a2a.types import Role, TaskState, TextPart, UnsupportedOperationError
 from a2a.utils import new_agent_text_message, new_task
 from a2a.utils.errors import ServerError
 from google.adk.agents import LlmAgent
+from google.adk.agents.callback_context import CallbackContext
 from google.adk.artifacts import InMemoryArtifactService
 from google.adk.memory import InMemoryMemoryService
 from google.adk.runners import Runner
@@ -32,11 +33,10 @@ class PersonalFinancialAgentExecutor(BaseAdkAgentExecutor):
     and financial analysis, within the A2A agent framework.
     """
 
-    def __init__(self, initial_state: dict = None):
+    def __init__(self, initial_state: dict | None = None):
         super().__init__()
-        self.initial_state = (
-            initial_state if initial_state is not None else {'user:name': ''}
-        )
+        self.initial_state = initial_state.copy() if initial_state else {}
+        self.initial_state.setdefault('user:name', '')
         self.status_message = 'Processing your request...'
         self.artifact_name = 'response'
 
@@ -65,14 +65,20 @@ financial advice to improve their financial well-being.
                 save_user_name,
                 AgentTool(google_search_assistant),
             ],
+            before_agent_callback=self.before_agent_callback,
         )
+
+    def before_agent_callback(self, callback_context: CallbackContext):
+        for key, value in self.initial_state.items():
+            if callback_context.state.get(key, None) is None:
+                callback_context.state[key] = value
 
     def _build_runner(self) -> Runner:
         return Runner(
             app_name=self.agent.name,
             agent=self.agent,
             session_service=DatabaseSessionService(
-                'sqlite:///./my_agent_data.db'
+                'sqlite:///./agents/personal_finance_assistant/adk.db'
             ),
             memory_service=InMemoryMemoryService(),
             artifact_service=InMemoryArtifactService(),
@@ -110,6 +116,8 @@ financial advice to improve their financial well-being.
                     session_id=task.contextId,
                 )
                 logger.info(f'New session created with id {session.id}')
+
+            logger.info(f'context: {session.state}')
 
             message_content = types.Content(
                 role=Role.user, parts=[types.Part.from_text(text=query)]
