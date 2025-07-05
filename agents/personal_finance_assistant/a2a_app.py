@@ -1,3 +1,5 @@
+import os
+
 from a2a.types import AgentCapabilities, AgentCard, AgentSkill
 
 from agents.personal_finance_assistant.agent_executor import (
@@ -42,11 +44,13 @@ class PersonalFinanceA2AApp(BaseAdkA2AApp):
         return AgentCapabilities()
 
     def _build_agent_card(self) -> AgentCard:
+        app_host = os.getenv('APP_HOST')
+        app_port = os.getenv('APP_PORT')
         return AgentCard(
             name=self.agent_executor.agent.name,
             description=self.agent_executor.agent.description,
             skills=self._build_agent_skills(),
-            url='http://127.0.0.1:8080/',
+            url=f'{app_host}:{app_port}/',
             version='1.0.0',
             defaultInputModes=['text', 'text/plain'],
             defaultOutputModes=['text', 'text/plain'],
