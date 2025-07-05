@@ -105,9 +105,17 @@ financial advice to improve their financial well-being.
                     app_name=self.agent.name, user_id=user_id
                 )
             )
-            if len(list_sessions_response.sessions) > 0:
-                session = list_sessions_response.sessions[0]
-                logger.info(f'Using previous session with id {session.id}')
+            old_session = None
+            for session in list_sessions_response.sessions:
+                if session.id == task.contextId:
+                    old_session = session
+                    break
+            if old_session:
+                session = old_session
+                old_session_info = {
+                    'session': session.model_dump_json(indent=2)
+                }
+                logger.info(f'Using old session with id {session.id}')
             else:
                 session = await self.runner.session_service.create_session(
                     app_name=self.agent.name,
@@ -116,8 +124,8 @@ financial advice to improve their financial well-being.
                     session_id=task.contextId,
                 )
                 logger.info(f'New session created with id {session.id}')
-
             logger.info(f'context: {session.state}')
+            logger.info(f'session: {session.model_dump_json(indent=2)}')
 
             message_content = types.Content(
                 role=Role.user, parts=[types.Part.from_text(text=query)]

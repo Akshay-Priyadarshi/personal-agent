@@ -1,27 +1,31 @@
 # Personal Finance AI Agent
 
-A modular, extensible AI agent system for personal finance management, built with Google ADK, Anthropic MCP, and Google A2A protocols. This project provides a personal finance assistant agent, a Google search agent, and a framework for building and integrating additional agents and tools.
+A modular, extensible AI agent system for personal finance management, built with Google ADK, Anthropic MCP, and Google A2A protocols. This project provides a personal finance assistant agent, a Google search agent, a personal assistant, and a framework for building and integrating additional agents and tools.
 
 ---
 
 ## Project Structure
 
 ```
-personal-finance-agent/
-├── agents/                # Agent logic, including personal finance and search agents
+personal-agent/
+├── agents/                # Agent logic, including personal finance, search, and personal assistant agents
 │   ├── __init__.py
 │   ├── google_search_agent/
 │   │   ├── __init__.py
 │   │   └── agent.py
+│   ├── personal_assistant/     # General personal assistant agent
 │   └── personal_finance_assistant/
 │       ├── __init__.py
 │       ├── a2a_app.py
 │       ├── agent_executor.py
 │       ├── agent.py
 │       ├── instruction.md
+│       ├── __main__.py         # Entry point for this specific agent
+│       ├── adk.db              # Database file
 │       └── tools/
-│           ├── __init__.py
-│           └── user.py
+│           └── __init__.py
+├── clients/               # Client applications
+│   └── cli/               # Command-line interface client
 ├── common_models/         # Shared models and base classes for agents and tools
 │   ├── __init__.py
 │   ├── base_adk_a2a_app.py
@@ -36,29 +40,30 @@ personal-finance-agent/
 │   ├── environment.py
 │   ├── file.py
 │   └── string.py
-├── sample_data/           # Sample/mock data for development
-├── __main__.py            # Entry point for running the agent server
-├── a2a_client.py          # Interactive A2A chat client
 ├── Makefile               # Build and workflow automation
 ├── pyproject.toml         # Project metadata and dependencies
 ├── uv.lock                # Lockfile for uv dependency manager
 ├── setup.bash             # Setup script
+├── .python-version        # Python version specification
+├── .ruff.toml            # Ruff linter configuration
+├── .gitignore            # Git ignore rules
 └── README.md              # Project overview and setup
 ```
 
 ### Directory Descriptions
 
-- **agents/**: Agent logic, including the personal finance assistant and search agents. Subfolders organize different agent types and their tools.
+- **agents/**: Agent logic, including the personal finance assistant, search agents, and personal assistant. Subfolders organize different agent types and their tools.
+- **clients/**: Client applications, including the command-line interface.
 - **common_models/**: Shared base classes and models for agents and tools.
 - **common_tools/**: Utility tools (date, time, etc.) available to all agents.
 - **utils/**: General-purpose utility functions (environment, file, string helpers).
-- **sample_data/**: Mock or sample data for development and testing.
-- \***\*main**.py\*\*: Main entry point for running the agent server.
-- **a2a_client.py**: Interactive A2A protocol chat client for talking to the agent.
 - **Makefile**: Automation for common development tasks.
 - **pyproject.toml**: Project configuration and dependencies.
 - **uv.lock**: Lockfile for reproducible dependency installs with uv.
 - **setup.bash**: Bash script for environment setup.
+- **.python-version**: Python version specification for the project.
+- **.ruff.toml**: Configuration for the Ruff linter.
+- **.gitignore**: Git ignore rules for the project.
 - **README.md**: Project overview, setup instructions, and documentation.
 
 ---
@@ -68,7 +73,7 @@ personal-finance-agent/
 1. **Clone the repository**
    ```sh
    git clone <repo-url>
-   cd personal-finance-agent
+   cd personal-agent
    ```
 2. **Install dependencies**
    ```sh
@@ -83,28 +88,28 @@ personal-finance-agent/
 
    - Copy `.example.env` to `.env` in `agents/personal_finance_assistant/` and fill in any required values.
 
-4. **Run the main agent server**
+4. **Run the personal finance assistant agent**
 
    ```sh
-   python -m __main__
+   python -m agents.personal_finance_assistant
    # or
-   python __main__.py
+   cd agents/personal_finance_assistant && python __main__.py
    ```
 
    The server will start on `127.0.0.1:8080` by default.
 
-5. **(Optional) Start an interactive A2A chat client**
+5. **(Optional) Use the CLI client**
    ```sh
-   python a2a_client.py
+   python -m clients.cli
    ```
-   This lets you chat with the agent via the A2A protocol.
+   This provides a command-line interface for interacting with the agents.
 
 ---
 
 ## Usage
 
-- The main agent server exposes a personal finance assistant via the A2A protocol.
-- Use the interactive client (`a2a_client.py`) to chat with the agent, or integrate with other A2A-compatible tools.
+- The personal finance assistant agent runs as a standalone service via the A2A protocol.
+- Use the CLI client to interact with the agent, or integrate with other A2A-compatible tools.
 - The agent can:
   - View account balances and recent transactions
   - Summarize spending by category and over time
@@ -115,6 +120,11 @@ personal-finance-agent/
 ---
 
 ## Agents Overview
+
+### Personal Assistant
+
+- **Location:** `agents/personal_assistant/`
+- **Purpose:** General personal assistant capabilities for various tasks and queries.
 
 ### Personal Finance Assistant
 
