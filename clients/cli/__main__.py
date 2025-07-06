@@ -3,16 +3,13 @@
 
 # imports
 import asyncio
-import logging
 import os
-import traceback
 
 from uuid import uuid4
 
 import dotenv
 import httpx
 import typer
-import typer.utils
 
 from a2a.client import A2ACardResolver, A2AClient
 from a2a.types import (
@@ -23,10 +20,11 @@ from a2a.types import (
     TextPart,
 )
 
+from utils import LoggerUtils
+
 
 # configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger('a2a_client')
+logger = LoggerUtils.get_logger(__name__)
 
 # configure environment varables
 dotenv.load_dotenv(dotenv.find_dotenv())
@@ -55,14 +53,14 @@ async def chat(
         )
         agent_card = await agent_card_resolver.get_agent_card()
 
-        logger.info(
+        logger.debug(
             f"""Connected to agent at {agent_url}
-Agent Card: {agent_card.model_dump_json(indent=2)}
 Type '/exit' to quit.
-        """
+        """,
+            extra={'agent_card': agent_card.model_dump()},
         )
         while True:
-            user_input = typer.prompt('\nUser 🧑')
+            user_input = input('\nUser 🧑: ')
             if user_input.strip().lower() == '/exit':
                 logger.info('Exiting chat.')
                 break
@@ -70,6 +68,7 @@ Type '/exit' to quit.
                 messageId=str(uuid4()),
                 role=Role.user,
                 parts=[TextPart(text=user_input)],
+                contextId='8e81653c-bf14-486c-8374-6cb024448d35',
             )
             try:
                 response = await agent_a2a_client.send_message(
@@ -80,8 +79,11 @@ Type '/exit' to quit.
                         ),
                     )
                 )
-                # logger.info the full JSON for debugging
-                logger.info(f'Agent: {response.model_dump_json()}')
+                # logger.debug the full JSON for debugging
+                logger.debug(
+                    'agent response received',
+                    extra={'agent_response': response.model_dump()},
+                )
                 # Try to extract the text from the response artifacts
                 try:
                     # Access artifacts from the response
@@ -101,17 +103,17 @@ Type '/exit' to quit.
                                 content += part.get('text', '')
                             else:
                                 content += part.root.text
-                        typer.echo(f'\nAgent 🤖: {content}')
+                        logger.debug(
+                            'successfully extracted agent reply',
+                            extra={'agent_reply': content},
+                        )
+                        print('\nAgent 🤖: ', content)
                     else:
-                        logger.info("No 'response' artifact found.")
+                        logger.warn("No 'response' artifact found.")
                 except Exception as e:
-                    logger.error(
-                        f'Error extracting agent response text: {e}\n{
-                            traceback.format_exc()
-                        }'
-                    )
+                    logger.exception(e)
             except Exception as e:
-                logger.error(f'Error: {e}\n{traceback.format_exc()}')
+                logger.exception(e)
 
 
 # run the chat function

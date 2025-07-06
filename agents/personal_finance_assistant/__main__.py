@@ -1,5 +1,4 @@
 # imports
-import logging
 import os
 
 import click
@@ -7,11 +6,10 @@ import click
 from dotenv import load_dotenv
 
 from agents.personal_finance_assistant.a2a_app import PersonalFinanceA2AApp
+from utils.logger import LoggerUtils
 
 
-# cofigure logger
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__file__)
+logger = LoggerUtils.get_logger(__name__)
 
 # configure app environment
 APP_ENV = os.getenv('APP_ENV')
@@ -35,8 +33,17 @@ def main(host: str, port: int):
     application, then starts the server using Uvicorn with the specified
     host and port.
     """
-    app = PersonalFinanceA2AApp()
-    app.start(host, port)
+    logger.info(
+        'starting Personal Finance Assistant application',
+        extra={'environment': APP_ENV, 'app_host': host, 'app_port': port},
+    )
+
+    try:
+        app = PersonalFinanceA2AApp()
+        app.start(host, port)
+    except Exception as e:
+        logger.exception(e)
+        raise e
 
 
 # run the main function

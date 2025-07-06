@@ -1,5 +1,3 @@
-import logging
-
 from a2a.server.agent_execution import RequestContext
 from a2a.server.events import EventQueue
 from a2a.server.tasks import TaskUpdater
@@ -19,10 +17,10 @@ from agents.google_search_agent import google_search_assistant
 from agents.personal_finance_assistant.tools import save_user_name
 from common_models import BaseAdkAgentExecutor
 from common_tools import get_current_date, get_current_time
-from utils import FileUtils, StringUtils
+from utils import FileUtils, LoggerUtils, StringUtils
 
 
-logger = logging.getLogger(__file__)
+logger = LoggerUtils.get_logger(__name__)
 
 
 class PersonalFinancialAgentExecutor(BaseAdkAgentExecutor):
@@ -112,10 +110,10 @@ financial advice to improve their financial well-being.
                     break
             if old_session:
                 session = old_session
-                old_session_info = {
-                    'session': session.model_dump_json(indent=2)
-                }
-                logger.info(f'Using old session with id {session.id}')
+                logger.debug(
+                    f'Using old session with id {session.id}',
+                    extra={'old_session': session.model_dump()},
+                )
             else:
                 session = await self.runner.session_service.create_session(
                     app_name=self.agent.name,
@@ -123,9 +121,10 @@ financial advice to improve their financial well-being.
                     state=self.initial_state,
                     session_id=task.contextId,
                 )
-                logger.info(f'New session created with id {session.id}')
-            logger.info(f'context: {session.state}')
-            logger.info(f'session: {session.model_dump_json(indent=2)}')
+                logger.debug(
+                    f'New session created with id {session.id}',
+                    extra={'new_session': session.model_dump()},
+                )
 
             message_content = types.Content(
                 role=Role.user, parts=[types.Part.from_text(text=query)]

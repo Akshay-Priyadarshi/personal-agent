@@ -1,14 +1,12 @@
-import json
-import logging
-
 from typing import Any
 
 from google.adk.tools.tool_context import ToolContext
 
 from common_models.tool_response import ToolResponse, ToolResponseStatus
+from utils import LoggerUtils
 
 
-logger = logging.getLogger(__file__)
+logger = LoggerUtils.get_logger(__name__)
 
 
 def save_user_name(
@@ -35,8 +33,9 @@ def save_user_name(
             'old_user_name': user_name_from_state,
             'new_user_name': new_user_name,
         },
-    ).model_dump()
-    logger.info(
-        json.dumps({'tool_response': response}),
+    )
+    logger.debug(
+        'finalised tool response',
+        extra={'tool_response': response.model_dump()},
     )
     return response

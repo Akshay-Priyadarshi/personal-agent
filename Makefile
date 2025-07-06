@@ -7,5 +7,5 @@ run_adk_web:
 run_local_personal_finance_assistant:
 	APP_ENV=development PYTHONPATH=. uv run agents/personal_finance_assistant
 
-run_cli_client:
-	uv run clients/cli
+run_local_cli_client:
+	PYTHONPATH=. uv run clients/cli
