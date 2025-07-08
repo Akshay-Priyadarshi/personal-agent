@@ -23,18 +23,22 @@ from a2a.types import (
 from utils import LoggerUtils
 
 
-# configure logging
-logger = LoggerUtils.get_logger(__name__)
-
 # configure environment varables
 dotenv.load_dotenv(dotenv.find_dotenv())
+
+# configure logging
+logger = LoggerUtils.get_logger(
+    __name__,
+    level=LoggerUtils.LogLevel(int(os.environ.get('APP_LOG_LEVEL'))),
+    file_path='./clients/cli/cli_client.log',
+)
 
 
 async def chat(
     agent_url: str = typer.Option(
         'http://127.0.0.1:8080/',
         envvar='AGENT_A2A_URL',
-        help='Agent URL',
+        help='Agent A2A URL',
     ),
 ):
     """Starts an interactive chat session with the A2A agent.
@@ -51,7 +55,11 @@ async def chat(
         agent_card_resolver = A2ACardResolver(
             httpx_client=agent_httpx_client, base_url=agent_url
         )
-        agent_card = await agent_card_resolver.get_agent_card()
+        try:
+            agent_card = await agent_card_resolver.get_agent_card()
+        except Exception as e:
+            logger.exception(e)
+            raise e
 
         logger.debug(
             f"""Connected to agent at {agent_url}
@@ -112,8 +120,10 @@ Type '/exit' to quit.
                         logger.warn("No 'response' artifact found.")
                 except Exception as e:
                     logger.exception(e)
+                    raise e
             except Exception as e:
                 logger.exception(e)
+                raise e
 
 
 # run the chat function
