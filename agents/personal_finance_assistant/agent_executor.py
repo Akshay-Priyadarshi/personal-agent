@@ -10,13 +10,11 @@ from google.adk.artifacts import InMemoryArtifactService
 from google.adk.memory import InMemoryMemoryService
 from google.adk.runners import Runner
 from google.adk.sessions import DatabaseSessionService
-from google.adk.tools.agent_tool import AgentTool
 from google.genai import types
 
-from agents.google_search_agent import google_search_assistant
 from agents.personal_finance_assistant.tools import save_user_name
 from common_models import BaseAdkAgentExecutor
-from common_tools import get_current_date, get_current_time
+from common_tools import get_current_date, get_current_time, google_search
 from utils import FileUtils, LoggerUtils, StringUtils
 
 
@@ -61,7 +59,7 @@ financial advice to improve their financial well-being.
                 get_current_date,
                 get_current_time,
                 save_user_name,
-                AgentTool(google_search_assistant),
+                google_search,
             ],
             before_agent_callback=self.before_agent_callback,
         )
