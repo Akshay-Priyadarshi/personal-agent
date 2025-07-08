@@ -1,10 +1,10 @@
-from datetime import time
+from datetime import datetime
 
 
-def get_current_time() -> time:
-    """Returns the current local time.
+def get_current_time() -> str:
+    """Returns the current local time as an ISO string.
 
     Returns:
-        time: The current local time.
+        str: The current local time in ISO format (HH:MM:SS).
     """
-    return time()
+    return datetime.now().time().isoformat()

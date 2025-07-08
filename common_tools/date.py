@@ -1,10 +1,10 @@
 from datetime import date
 
 
-def get_current_date() -> date:
-    """Returns the current date.
+def get_current_date() -> str:
+    """Returns the current date as an ISO string.
 
     Returns:
-        date: The current local date.
+        str: The current local date in ISO format (YYYY-MM-DD).
     """
-    return date.today()
+    return date.today().isoformat()
