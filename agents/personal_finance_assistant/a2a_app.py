@@ -1,5 +1,3 @@
-import os
-
 from a2a.types import AgentCapabilities, AgentCard, AgentSkill
 
 from agents.personal_finance_assistant.agent_executor import (
