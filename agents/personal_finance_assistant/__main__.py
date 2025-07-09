@@ -1,18 +1,16 @@
 # imports
-import os
-
 import click
 
 from dotenv import load_dotenv
 
 from agents.personal_finance_assistant.a2a_app import PersonalFinanceA2AApp
-from utils.logger import LoggerUtils
+from utils import EnvironmentUtils, LoggerUtils
 
 
 logger = LoggerUtils.get_logger(__name__)
 
 # configure app environment
-APP_ENV = os.getenv('APP_ENV')
+APP_ENV = EnvironmentUtils.read_env_var('APP_ENV')
 
 if APP_ENV == 'development':
     load_dotenv(dotenv_path='./agents/personal_finance_assistant/.env')

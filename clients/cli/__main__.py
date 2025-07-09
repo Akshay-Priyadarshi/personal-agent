@@ -20,7 +20,7 @@ from a2a.types import (
     TextPart,
 )
 
-from utils import LoggerUtils
+from utils import EnvironmentUtils, LoggerUtils
 
 
 # configure environment varables
@@ -29,7 +29,9 @@ dotenv.load_dotenv(dotenv.find_dotenv())
 # configure logging
 logger = LoggerUtils.get_logger(
     __name__,
-    level=LoggerUtils.LogLevel(int(os.environ.get('APP_LOG_LEVEL'))),
+    level=LoggerUtils.LogLevel(
+        int(EnvironmentUtils.read_env_var('APP_LOG_LEVEL'))
+    ),
     file_path='./clients/cli/cli_client.log',
 )
 
@@ -128,4 +130,8 @@ Type '/exit' to quit.
 
 # run the chat function
 if __name__ == '__main__':
-    typer.run(asyncio.run(chat(agent_url=os.getenv('AGENT_A2A_URL'))))
+    typer.run(
+        asyncio.run(
+            chat(agent_url=EnvironmentUtils.read_env_var('AGENT_A2A_URL'))
+        )
+    )

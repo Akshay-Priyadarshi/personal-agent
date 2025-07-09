@@ -7,6 +7,7 @@ from agents.personal_finance_assistant.agent_executor import (
 )
 from common_models import BaseAdkA2AApp
 from common_models.base_adk_agent_executor import BaseAdkAgentExecutor
+from utils import EnvironmentUtils
 
 
 class PersonalFinanceA2AApp(BaseAdkA2AApp):
@@ -44,8 +45,8 @@ class PersonalFinanceA2AApp(BaseAdkA2AApp):
         return AgentCapabilities()
 
     def _build_agent_card(self) -> AgentCard:
-        app_host = os.getenv('APP_HOST')
-        app_port = os.getenv('APP_PORT')
+        app_host = EnvironmentUtils.read_env_var('APP_HOST')
+        app_port = EnvironmentUtils.read_env_var('APP_PORT')
         return AgentCard(
             name=self.agent_executor.agent.name,
             description=self.agent_executor.agent.description,
