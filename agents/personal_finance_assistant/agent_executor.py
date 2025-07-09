@@ -1,16 +1,14 @@
 from a2a.server.agent_execution import RequestContext
 from a2a.server.events import EventQueue
 from a2a.server.tasks import TaskUpdater
-from a2a.types import Role, TaskState, TextPart, UnsupportedOperationError
+from a2a.types import TaskState, TextPart, UnsupportedOperationError
 from a2a.utils import new_agent_text_message, new_task
 from a2a.utils.errors import ServerError
 from google.adk.agents import LlmAgent
-from google.adk.agents.callback_context import CallbackContext
 from google.adk.artifacts import InMemoryArtifactService
 from google.adk.memory import InMemoryMemoryService
 from google.adk.runners import Runner
 from google.adk.sessions import DatabaseSessionService
-from google.genai import types
 
 from agents.personal_finance_assistant.tools import save_user_name
 from common_models import BaseAdkAgentExecutor
@@ -64,11 +62,6 @@ financial advice to improve their financial well-being.
             before_agent_callback=self.before_agent_callback,
         )
 
-    def before_agent_callback(self, callback_context: CallbackContext):
-        for key, value in self.initial_state.items():
-            if callback_context.state.get(key, None) is None:
-                callback_context.state[key] = value
-
     def _build_runner(self) -> Runner:
         return Runner(
             app_name=self.agent.name,
@@ -88,73 +81,44 @@ financial advice to improve their financial well-being.
     async def execute(
         self, context: RequestContext, event_queue: EventQueue
     ) -> None:
-        query = context.get_user_input()
-        task = context.current_task or new_task(context.message)
-        await event_queue.enqueue_event(task)
-
-        updater = TaskUpdater(event_queue, task.id, task.contextId)
+        updater = TaskUpdater(event_queue, context.task_id, context.context_id)
         user_id = 'awwwkshay'
+        task = context.current_task
+        if task is None:
+            updater.submit()
+            task = new_task(context.message)
+
+        await updater.event_queue.enqueue_event(task)
+        await updater.start_work()
 
         try:
-            list_sessions_response = (
-                await self.runner.session_service.list_sessions(
-                    app_name=self.agent.name, user_id=user_id
-                )
-            )
-            old_session = None
-            for session in list_sessions_response.sessions:
-                if session.id == task.contextId:
-                    old_session = session
-                    break
-            if old_session:
-                session = old_session
-                logger.debug(
-                    f'Using old session with id {session.id}',
-                    extra={'old_session': session.model_dump()},
-                )
-            else:
-                session = await self.runner.session_service.create_session(
-                    app_name=self.agent.name,
-                    user_id=user_id,
-                    state=self.initial_state,
-                    session_id=task.contextId,
-                )
-                logger.debug(
-                    f'New session created with id {session.id}',
-                    extra={'new_session': session.model_dump()},
-                )
-
-            message_content = types.Content(
-                role=Role.user, parts=[types.Part.from_text(text=query)]
+            # get app session
+            session = await self.get_app_session(
+                context=context, user_id=user_id
             )
 
-            response_text = ''
-            async for event in self.runner.run_async(
-                user_id=user_id,
+            # get user message content
+            user_message_content = await self.get_user_message_content(
+                context=context
+            )
+
+            # get agent response text with the user content
+            agent_response_text = await self.get_agent_response_text(
                 session_id=session.id,
-                new_message=message_content,
-            ):
-                if (
-                    event.is_final_response()
-                    and event.content
-                    and event.content.parts
-                ):
-                    for part in event.content.parts:
-                        if part.text:
-                            response_text += part.text + '\n'
-                        elif part.function_call:
-                            # Log or handle function calls if needed
-                            pass  # Function calls are handled internally by ADK
+                user_id=user_id,
+                user_message_content=user_message_content,
+            )
 
-            # Send the final response as an artifact
+            # send the final response as an artifact
             await updater.add_artifact(
-                parts=[TextPart(text=response_text.strip())],
+                parts=[TextPart(text=agent_response_text)],
                 name=self.artifact_name,
             )
 
+            # send task completed
             await updater.complete()
-
         except Exception as e:
+            logger.exception(e)
             await updater.update_status(
                 TaskState.failed,
                 new_agent_text_message(
