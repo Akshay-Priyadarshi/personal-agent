@@ -5,7 +5,7 @@ description = "Personal agent"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "a2a-sdk>=0.2.9",
+    "a2a-sdk>=0.2.11",
     "google-adk>=1.4.2",
     "jinja2>=3.1.6",
     "python-json-logger>=3.3.0",
