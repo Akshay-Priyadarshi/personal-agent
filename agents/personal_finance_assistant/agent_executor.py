@@ -4,12 +4,15 @@ from a2a.server.tasks import TaskUpdater
 from a2a.types import TaskState, TextPart, UnsupportedOperationError
 from a2a.utils import new_agent_text_message, new_task
 from a2a.utils.errors import ServerError
-from google.adk.agents import LlmAgent
+from google.adk.agents import Agent
 from google.adk.artifacts import InMemoryArtifactService
 from google.adk.memory import InMemoryMemoryService
 from google.adk.runners import Runner
 from google.adk.sessions import DatabaseSessionService
 
+from agents.personal_finance_assistant.sub_agents import (
+    ExpenseTrackingAssistant,
+)
 from agents.personal_finance_assistant.tools import save_user_name
 from common_models import BaseAdkAgentExecutor
 from common_tools import get_current_date, get_current_time, google_search
@@ -42,8 +45,8 @@ class PersonalFinancialAgentExecutor(BaseAdkAgentExecutor):
             variables={},
         )
 
-    def _build_agent(self) -> LlmAgent:
-        return LlmAgent(
+    def _build_agent(self) -> Agent:
+        return Agent(
             model='gemini-2.0-flash',
             name='personal_finance_assistant',
             description="""
@@ -60,6 +63,14 @@ financial advice to improve their financial well-being.
                 google_search,
             ],
             before_agent_callback=self.before_agent_callback,
+            sub_agents=[
+                ExpenseTrackingAssistant(
+                    initial_state={
+                        'user:expenses': [],
+                        'user:expense_categories': [],
+                    }
+                ).adk_agent
+            ],
         )
 
     def _build_runner(self) -> Runner:
@@ -85,7 +96,7 @@ financial advice to improve their financial well-being.
         user_id = 'awwwkshay'
         task = context.current_task
         if task is None:
-            updater.submit()
+            await updater.submit()
             task = new_task(context.message)
 
         await updater.event_queue.enqueue_event(task)
