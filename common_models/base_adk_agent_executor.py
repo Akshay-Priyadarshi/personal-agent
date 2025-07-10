@@ -3,7 +3,7 @@ from abc import abstractmethod
 from a2a.server.agent_execution import AgentExecutor, RequestContext
 from a2a.server.events import EventQueue
 from a2a.types import Role
-from google.adk.agents import LlmAgent
+from google.adk.agents import BaseAgent
 from google.adk.agents.callback_context import CallbackContext
 from google.adk.runners import Runner
 from google.adk.sessions import Session
@@ -47,7 +47,7 @@ class BaseAdkAgentExecutor(AgentExecutor):
         )
 
     @abstractmethod
-    def _build_agent(self) -> LlmAgent:
+    def _build_agent(self) -> BaseAgent:
         raise NotImplementedError(
             'Subclasses must implement the _build_agent method'
         )

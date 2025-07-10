@@ -1,9 +1,9 @@
-from google.adk.agents import LlmAgent
+from google.adk.agents import Agent
 from google.adk.tools import google_search
 from google.adk.tools.agent_tool import AgentTool
 
 
-root_agent = LlmAgent(
+root_agent = Agent(
     model='gemini-2.0-flash',
     name='google_search_assistant',
     description="""
