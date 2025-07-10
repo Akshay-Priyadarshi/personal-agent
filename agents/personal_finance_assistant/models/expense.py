@@ -35,7 +35,8 @@ class Expense(BaseModel):
     id: uuid.UUID | None = Field(
         default_factory=uuid.uuid4, description='id of the expense'
     )
-    amount: float = Field(default=0, description='amount of the expense')
+    description: str = Field(description='description of the expense')
+    amount: float = Field(description='amount of the expense')
     date: python_date = Field(description='date of the expense')
     time: python_time = Field(description='time of the expense')
     category: ExpenseCategory = Field(description='category of the expense')

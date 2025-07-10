@@ -21,7 +21,7 @@ class PersonalFinanceA2AApp(BaseAdkA2AApp):
         super().__init__()
 
     def _build_agent_executor(self) -> BaseAdkAgentExecutor:
-        return PersonalFinancialAgentExecutor(initial_state=None)
+        return PersonalFinancialAgentExecutor(initial_state={'user:name': ''})
 
     def _build_agent_skills(self) -> list[AgentSkill]:
         return [
@@ -46,8 +46,8 @@ class PersonalFinanceA2AApp(BaseAdkA2AApp):
         app_host = EnvironmentUtils.read_env_var('APP_HOST')
         app_port = EnvironmentUtils.read_env_var('APP_PORT')
         return AgentCard(
-            name=self.agent_executor.agent.name,
-            description=self.agent_executor.agent.description,
+            name=self.agent_executor.adk_agent.name,
+            description=self.agent_executor.adk_agent.description,
             skills=self._build_agent_skills(),
             url=f'{app_host}:{app_port}/',
             version='1.0.0',

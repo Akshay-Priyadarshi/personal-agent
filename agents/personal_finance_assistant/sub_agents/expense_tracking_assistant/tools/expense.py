@@ -2,8 +2,8 @@ from datetime import datetime
 from typing import Any
 
 from google.adk.tools.tool_context import ToolContext
-from models import Expense, ExpenseCategory
 
+from agents.personal_finance_assistant.models import Expense, ExpenseCategory
 from common_models.tool_response import ToolResponse, ToolResponseStatus
 from utils import LoggerUtils
 
@@ -12,6 +12,7 @@ logger = LoggerUtils.get_logger(__name__)
 
 
 def add_expense(
+    description: str,
     amount: float,
     date: str,
     time: str,
@@ -22,6 +23,7 @@ def add_expense(
     context state.
 
     Args:
+        description (str): The description of the expense.
         amount (float): The amount of the expense.
         date (str): The date of the expense in ISO format (YYYY-MM-DD).
         time (str): The time of the expense in ISO format (HH:MM:SS).
@@ -41,9 +43,10 @@ def add_expense(
                 expense.
     """
     logger.info(
-        f'amount: {amount}, date: {date}, time: {time}, category_name: {category_name}'
+        f'description: {description}, amount: {amount}, date: {date}, time: {time}, category_name: {category_name}'
     )
     new_expense = Expense(
+        description=description,
         amount=amount,
         date=datetime.fromisoformat(date).date(),
         time=datetime.strptime(time, '%H:%M:%S').time(),
