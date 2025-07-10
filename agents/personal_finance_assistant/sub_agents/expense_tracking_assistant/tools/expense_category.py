@@ -1,8 +1,8 @@
 from typing import Any
 
 from google.adk.tools.tool_context import ToolContext
-from models import ExpenseCategory
 
+from agents.personal_finance_assistant.models import ExpenseCategory
 from common_models.tool_response import ToolResponse, ToolResponseStatus
 from utils import LoggerUtils
 
