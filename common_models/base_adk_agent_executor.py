@@ -84,7 +84,7 @@ class BaseAdkAgentExecutor(AgentExecutor):
                 )
             else:
                 session = await self.runner.session_service.create_session(
-                    app_name=self.agent.name,
+                    app_name=self.adk_agent.name,
                     user_id=user_id,
                     state=self.initial_state,
                     session_id=context.context_id,
@@ -95,7 +95,7 @@ class BaseAdkAgentExecutor(AgentExecutor):
                 )
             return session
         except Exception as e:
-            logger.exeption(e)
+            logger.exception(e)
             raise e
 
     async def get_user_message_content(
