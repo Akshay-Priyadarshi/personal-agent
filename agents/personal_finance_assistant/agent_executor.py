@@ -1,19 +1,20 @@
+from typing import override
+
 from a2a.server.agent_execution import RequestContext
 from a2a.server.events import EventQueue
 from a2a.server.tasks import TaskUpdater
 from a2a.types import TaskState, TextPart, UnsupportedOperationError
 from a2a.utils import new_agent_text_message, new_task
 from a2a.utils.errors import ServerError
-from google.adk.agents import LlmAgent
 from google.adk.artifacts import InMemoryArtifactService
 from google.adk.memory import InMemoryMemoryService
 from google.adk.runners import Runner
 from google.adk.sessions import DatabaseSessionService
 
-from agents.personal_finance_assistant.tools import save_user_name
+from agents.personal_finance_assistant.agent import PersonalFinanceAssistant
 from common_models import BaseAdkAgentExecutor
-from common_tools import get_current_date, get_current_time, google_search
-from utils import FileUtils, LoggerUtils, StringUtils
+from common_models.base_adk_agent import BaseAdkAgent
+from utils import LoggerUtils
 
 
 logger = LoggerUtils.get_logger(__name__)
@@ -28,44 +29,21 @@ class PersonalFinancialAgentExecutor(BaseAdkAgentExecutor):
     """
 
     def __init__(self, initial_state: dict | None = None):
-        super().__init__()
         self.initial_state = initial_state.copy() if initial_state else {}
         self.initial_state.setdefault('user:name', '')
+        super().__init__()
         self.status_message = 'Processing your request...'
         self.artifact_name = 'response'
 
-    def _build_instruction(self) -> str:
-        return StringUtils.populate_variables(
-            template_text=FileUtils.read_file_relative(
-                __file__, 'instruction.md'
-            ),
-            variables={},
-        )
+    @override
+    def _build_agent(self) -> BaseAdkAgent:
+        return PersonalFinanceAssistant(initial_state=self.initial_state)
 
-    def _build_agent(self) -> LlmAgent:
-        return LlmAgent(
-            model='gemini-2.0-flash',
-            name='personal_finance_assistant',
-            description="""
-You are a personal finance assistant that helps users manage
-their money effectively. You can track expenses, create
-budgets, provide financial analysis, and offer personalized
-financial advice to improve their financial well-being.
-            """,
-            instruction=self._build_instruction(),
-            tools=[
-                get_current_date,
-                get_current_time,
-                save_user_name,
-                google_search,
-            ],
-            before_agent_callback=self.before_agent_callback,
-        )
-
+    @override
     def _build_runner(self) -> Runner:
         return Runner(
-            app_name=self.agent.name,
-            agent=self.agent,
+            app_name=self.adk_agent.name,
+            agent=self.adk_agent,
             session_service=DatabaseSessionService(
                 'sqlite:///./agents/personal_finance_assistant/adk.db'
             ),
@@ -73,11 +51,13 @@ financial advice to improve their financial well-being.
             artifact_service=InMemoryArtifactService(),
         )
 
+    @override
     async def cancel(
         self, context: RequestContext, event_queue: EventQueue
     ) -> None:
         raise ServerError(error=UnsupportedOperationError())
 
+    @override
     async def execute(
         self, context: RequestContext, event_queue: EventQueue
     ) -> None:
@@ -85,7 +65,7 @@ financial advice to improve their financial well-being.
         user_id = 'awwwkshay'
         task = context.current_task
         if task is None:
-            updater.submit()
+            await updater.submit()
             task = new_task(context.message)
 
         await updater.event_queue.enqueue_event(task)

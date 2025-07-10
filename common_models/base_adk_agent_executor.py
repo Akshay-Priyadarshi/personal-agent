@@ -3,12 +3,12 @@ from abc import abstractmethod
 from a2a.server.agent_execution import AgentExecutor, RequestContext
 from a2a.server.events import EventQueue
 from a2a.types import Role
-from google.adk.agents import BaseAgent
 from google.adk.agents.callback_context import CallbackContext
 from google.adk.runners import Runner
 from google.adk.sessions import Session
 from google.genai import types
 
+from common_models.base_adk_agent import BaseAdkAgent
 from utils import LoggerUtils
 
 
@@ -38,16 +38,11 @@ class BaseAdkAgentExecutor(AgentExecutor):
             artifact_name: Name for the response artifact
         """
         self.agent = self._build_agent()
+        self.adk_agent = self.agent.adk_agent
         self.runner = self._build_runner()
 
     @abstractmethod
-    def _build_instruction(self) -> str:
-        raise NotImplementedError(
-            'Subclasses must implement the _build_instruction method'
-        )
-
-    @abstractmethod
-    def _build_agent(self) -> BaseAgent:
+    def _build_agent(self) -> BaseAdkAgent:
         raise NotImplementedError(
             'Subclasses must implement the _build_agent method'
         )
@@ -77,7 +72,7 @@ class BaseAdkAgentExecutor(AgentExecutor):
     ) -> Session:
         try:
             old_session = await self.runner.session_service.get_session(
-                app_name=self.agent.name,
+                app_name=self.adk_agent.name,
                 user_id=user_id,
                 session_id=context.context_id,
             )
