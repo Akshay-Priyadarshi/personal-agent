@@ -4,7 +4,7 @@ import click
 from dotenv import load_dotenv
 
 from agents.personal_finance_assistant.a2a_app import PersonalFinanceA2AApp
-from utils import EnvironmentUtils, LoggerUtils
+from common_utils import EnvironmentUtils, LoggerUtils
 
 
 logger = LoggerUtils.get_logger(__name__)

@@ -4,7 +4,7 @@ from typing import Any
 from google.adk.agents import BaseAgent
 from google.adk.agents.callback_context import CallbackContext
 
-from utils import LoggerUtils
+from common_utils import LoggerUtils
 
 
 logger = LoggerUtils.get_logger(

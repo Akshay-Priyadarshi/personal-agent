@@ -25,7 +25,7 @@ RUN uv sync
 COPY agents/personal_finance_assistant ./agents/personal_finance_assistant
 COPY common_models ./common_models
 COPY common_tools ./common_tools
-COPY utils ./utils
+COPY common_utils ./common_utils
 
 # Set the entrypoint
 CMD ["uv", "run", "agents/personal_finance_assistant"]

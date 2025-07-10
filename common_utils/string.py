@@ -2,7 +2,7 @@ from typing import Any
 
 from jinja2 import Template
 
-from utils.logger import LoggerUtils
+from common_utils.logger import LoggerUtils
 
 
 logger = LoggerUtils.get_logger(__name__)

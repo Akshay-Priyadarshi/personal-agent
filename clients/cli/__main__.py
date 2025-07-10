@@ -20,7 +20,7 @@ from a2a.types import (
     TextPart,
 )
 
-from utils import EnvironmentUtils, LoggerUtils
+from common_utils import EnvironmentUtils, LoggerUtils
 
 
 # configure environment varables

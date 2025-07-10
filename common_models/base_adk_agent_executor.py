@@ -9,7 +9,7 @@ from google.adk.sessions import Session
 from google.genai import types
 
 from common_models.base_adk_agent import BaseAdkAgent
-from utils import LoggerUtils
+from common_utils import LoggerUtils
 
 
 logger = LoggerUtils.get_logger(

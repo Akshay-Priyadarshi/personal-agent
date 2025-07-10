@@ -5,7 +5,7 @@ from agents.personal_finance_assistant.agent_executor import (
 )
 from common_models import BaseAdkA2AApp
 from common_models.base_adk_agent_executor import BaseAdkAgentExecutor
-from utils import EnvironmentUtils
+from common_utils import EnvironmentUtils
 
 
 class PersonalFinanceA2AApp(BaseAdkA2AApp):

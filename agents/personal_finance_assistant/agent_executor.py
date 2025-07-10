@@ -14,7 +14,7 @@ from google.adk.sessions import DatabaseSessionService
 from agents.personal_finance_assistant.agent import PersonalFinanceAssistant
 from common_models import BaseAdkAgentExecutor
 from common_models.base_adk_agent import BaseAdkAgent
-from utils import LoggerUtils
+from common_utils import LoggerUtils
 
 
 logger = LoggerUtils.get_logger(__name__)

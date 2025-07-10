@@ -1,6 +1,6 @@
-# Personal Finance AI Agent
+# Personal Assistant AI Agent
 
-A modular, extensible AI agent system for personal finance management, built with Google ADK, Anthropic MCP, and Google A2A protocols. This project provides a personal finance assistant agent, a Google search agent, a personal assistant, and a framework for building and integrating additional agents and tools.
+Personal Agent is a flexible, modular AI platform designed to help users manage their personal finances and daily tasks. Leveraging advanced protocols like Google ADK, Anthropic MCP, and Google A2A, the app features a suite of intelligent agents—including a personal finance assistant, and a general personal assistant. The system is built for extensibility, allowing developers to easily add new agents and tools to address a wide range of personal productivity and information needs. With a focus on user privacy, actionable insights, and seamless integration, Personal Agent empowers users to take control of their financial well-being and everyday life through conversational AI.
 
 ---
 
@@ -10,43 +10,57 @@ A modular, extensible AI agent system for personal finance management, built wit
 personal-agent/
 ├── agents/                # Agent logic, including personal finance, search, and personal assistant agents
 │   ├── __init__.py
-│   ├── google_search_agent/
+│   ├── personal_finance_assistant/
 │   │   ├── __init__.py
-│   │   └── agent.py
-│   ├── personal_assistant/     # General personal assistant agent
-│   └── personal_finance_assistant/
-│       ├── __init__.py
-│       ├── a2a_app.py
-│       ├── agent_executor.py
-│       ├── agent.py
-│       ├── instruction.md
-│       ├── __main__.py         # Entry point for this specific agent
-│       ├── adk.db              # Database file
-│       └── tools/
-│           └── __init__.py
+│   │   ├── a2a_app.py
+│   │   ├── agent_executor.py
+│   │   ├── agent.py
+│   │   ├── instruction.md
+│   │   ├── __main__.py
+│   │   ├── Dockerfile
+│   │   ├── models/
+│   │   │   ├── __init__.py
+│   │   │   └── expense.py
+│   │   ├── sub_agents/
+│   │   │   ├── __init__.py
+│   │   │   └── expense_tracking_assistant/
+│   │   │       ├── __init__.py
+│   │   │       ├── agent.py
+│   │   │       ├── instruction.md
+│   │   │       └── tools/
+│   │   │           ├── __init__.py
+│   │   │           ├── expense.py
+│   │   │           └── expense_category.py
+│   │   └── tools/
+│   │       ├── __init__.py
+│   │       └── user.py
 ├── clients/               # Client applications
-│   └── cli/               # Command-line interface client
+│   └── cli/
+│       └── __main__.py
 ├── common_models/         # Shared models and base classes for agents and tools
 │   ├── __init__.py
 │   ├── base_adk_a2a_app.py
 │   ├── base_adk_agent_executor.py
+│   ├── base_adk_agent.py
 │   └── tool_response.py
-├── common_tools/          # Shared utility tools (date, time, etc.)
+├── common_tools/          # Shared utility tools (date, time, google search, etc.)
 │   ├── __init__.py
 │   ├── date.py
+│   ├── google_search.py
 │   └── time.py
-├── utils/                 # Utility functions (environment, file, string helpers)
+├── common_utils/          # Utility functions (environment, file, string helpers)
 │   ├── __init__.py
 │   ├── environment.py
 │   ├── file.py
+│   ├── logger.py
 │   └── string.py
 ├── Makefile               # Build and workflow automation
 ├── pyproject.toml         # Project metadata and dependencies
 ├── uv.lock                # Lockfile for uv dependency manager
 ├── setup.bash             # Setup script
 ├── .python-version        # Python version specification
-├── .ruff.toml            # Ruff linter configuration
-├── .gitignore            # Git ignore rules
+├── .ruff.toml             # Ruff linter configuration
+├── .gitignore             # Git ignore rules
 └── README.md              # Project overview and setup
 ```
 
@@ -55,8 +69,8 @@ personal-agent/
 - **agents/**: Agent logic, including the personal finance assistant, search agents, and personal assistant. Subfolders organize different agent types and their tools.
 - **clients/**: Client applications, including the command-line interface.
 - **common_models/**: Shared base classes and models for agents and tools.
-- **common_tools/**: Utility tools (date, time, etc.) available to all agents.
-- **utils/**: General-purpose utility functions (environment, file, string helpers).
+- **common_tools/**: Utility tools (date, time, google search, etc.) available to all agents.
+- **common_utils/**: General-purpose utility functions (environment, file, logger, string helpers).
 - **Makefile**: Automation for common development tasks.
 - **pyproject.toml**: Project configuration and dependencies.
 - **uv.lock**: Lockfile for reproducible dependency installs with uv.
@@ -75,75 +89,88 @@ personal-agent/
    git clone <repo-url>
    cd personal-agent
    ```
-2. **Install dependencies**
+2. **Setup Project**
    ```sh
-   uv sync
-   ```
-   If you don't have [uv](https://github.com/astral-sh/uv) installed:
-   ```sh
-   pip install uv
-   # or see: https://github.com/astral-sh/uv#installation
+   make setup
    ```
 3. **Set up environment variables**
 
    - Copy `.example.env` to `.env` in `agents/personal_finance_assistant/` and fill in any required values.
 
-4. **Run the personal finance assistant agent**
+4. **Run the Personal Finance Assistant agent**
 
    ```sh
-   python -m agents.personal_finance_assistant
-   # or
-   cd agents/personal_finance_assistant && python __main__.py
+   make run_local_personal_finance_assistant
    ```
 
    The server will start on `127.0.0.1:8080` by default.
 
 5. **(Optional) Use the CLI client**
    ```sh
-   python -m clients.cli
+   make run_local_cli_client
    ```
-   This provides a command-line interface for interacting with the agents.
+   This provides a command-line interface for interacting with the agent.
 
 ---
 
-## Usage
+## Makefile Commands for Local Development
 
-- The personal finance assistant agent runs as a standalone service via the A2A protocol.
-- Use the CLI client to interact with the agent, or integrate with other A2A-compatible tools.
-- The agent can:
-  - View account balances and recent transactions
-  - Summarize spending by category and over time
-  - Set and track budgets
-  - Import transactions from files or integrations
-  - Answer questions about your finances
+You can use the following `make` commands to simplify local development and running the project:
+
+- `make setup`  
+  Run the setup script to prepare your environment.
+
+- `make run_adk_web`  
+  Start the ADK web interface for agents (for development/debugging).
+
+- `make run_local_personal_finance_assistant`  
+  Run the Personal Finance Assistant agent locally in development mode.
+
+- `make build_personal_finance_assistant`  
+  Build a Docker image for the Personal Finance Assistant agent.
+
+- `make run_local_cli_client`  
+  Run the CLI client locally to interact with the agent.
 
 ---
 
 ## Agents Overview
 
-### Personal Assistant
-
-- **Location:** `agents/personal_assistant/`
-- **Purpose:** General personal assistant capabilities for various tasks and queries.
-
 ### Personal Finance Assistant
 
 - **Location:** `agents/personal_finance_assistant/`
-- **Purpose:** Help users manage, understand, and improve their financial well-being.
+- **Description:**  
+  A highly capable, friendly, and trustworthy personal finance assistant. Helps users manage, understand, and improve their financial well-being.
 - **Capabilities:**
-  - Warmly greet and onboard users
-  - Clarify user needs and financial goals
-  - Categorize transactions and identify spending patterns
-  - Summarize spending habits
-  - Suggest personalized budgets and actionable advice
-  - Provide visualizations and reports on request
-  - Maintain a supportive, privacy-respecting, and transparent approach
-- **See:** [`instruction.md`](agents/personal_finance_assistant/instruction.md) for full guidelines
+  - Warmly greet and onboard users, ask for and save their name.
+  - Clarify user needs and financial goals.
+  - Categorize transactions, identify spending patterns, and summarize spending habits.
+  - Suggest personalized budgets and actionable advice.
+  - Provide visualizations and reports on request.
+  - Maintain a supportive, privacy-respecting, and transparent approach.
+  - **Sub-agents:**
+    - **Expense Tracking Assistant** (see below)
+  - **Tools:**
+    - `get_current_date`: Returns the current date.
+    - `get_current_time`: Returns the current time.
+    - `save_user_name`: Saves the user's name to state.
 
-### Google Search Agent
+#### Sub-Agent: Expense Tracking Assistant
 
-- **Location:** `agents/google_search_agent/`
-- **Purpose:** Provide search capabilities to support the main agent or other use cases.
+- **Location:** `agents/personal_finance_assistant/sub_agents/expense_tracking_assistant/`
+- **Description:**  
+  Specialized in tracking and analyzing user expenses.
+- **Capabilities:**
+  - Log new expenses and categorize transactions.
+  - View summaries and generate reports to gain insights into spending habits.
+  - Infer categories and dates from user input when possible.
+  - Confirm and validate all expense data before saving.
+  - Provide clear, actionable spending reports.
+  - **Tools:**
+    - `get_current_date`: Returns the current date.
+    - `get_current_time`: Returns the current time.
+    - `add_expense`: Adds a new expense to the user's list.
+    - `add_expense_category`: Adds a new expense category to the user's list.
 
 ---
 

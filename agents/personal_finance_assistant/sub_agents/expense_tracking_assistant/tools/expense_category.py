@@ -4,7 +4,7 @@ from google.adk.tools.tool_context import ToolContext
 
 from agents.personal_finance_assistant.models import ExpenseCategory
 from common_models.tool_response import ToolResponse, ToolResponseStatus
-from utils import LoggerUtils
+from common_utils import LoggerUtils
 
 
 logger = LoggerUtils.get_logger(__name__)
