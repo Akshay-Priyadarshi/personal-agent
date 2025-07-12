@@ -1,0 +1,166 @@
+sources:
+  toolbox-db:
+    kind: postgres
+    host: db
+    port: 5432
+    database: toolbox_db
+    user: postgres
+    password: postgres
+
+tools:
+  create-expense-category:
+    kind: postgres-sql
+    source: toolbox-db
+    description: Add an expense category
+    parameters:
+      - name: name
+        type: string
+        description: Name of the expense category
+    statement: |
+      INSERT INTO expense_categories (name)
+      VALUES ($1);
+
+  read-expense-category-by-id:
+    kind: postgres-sql
+    source: toolbox-db
+    description: Read an expense category by id
+    parameters:
+      - name: id
+        type: string
+        description: Id of the expense category
+    statement: |
+      SELECT id, name FROM expense_categories WHERE id = $1;
+
+  read-expense-categories:
+    kind: postgres-sql
+    source: toolbox-db
+    description: Read all expense categories
+    parameters: []
+    statement: |
+      SELECT id, name FROM expense_categories;
+
+  update-expense-category-by-id:
+    kind: postgres-sql
+    source: toolbox-db
+    description: Update an expense category's name by id
+    parameters:
+      - name: id
+        type: string
+        description: Id of the expense category
+      - name: name
+        type: string
+        description: New name of the expense category
+    statement: |
+      UPDATE expense_categories SET name = $2 WHERE id = $1;
+
+  delete-expense-category-by-id:
+    kind: postgres-sql
+    source: toolbox-db
+    description: Delete an expense category by id
+    parameters:
+      - name: id
+        type: string
+        description: Id of the expense category
+    statement: |
+      DELETE FROM expense_categories WHERE id = $1;
+
+  create-expense:
+    kind: postgres-sql
+    source: toolbox-db
+    description: Create an expense
+    parameters:
+      - name: description
+        type: string
+        description: Description of the expense
+      - name: amount
+        type: float
+        description: Amount of the expense
+      - name: date
+        type: string
+        description: Date of the expense
+      - name: time
+        type: string
+        description: Time of the expense
+      - name: category_id
+        type: string
+        description: Id of the expense category
+    statement: |
+      INSERT INTO expenses (description, amount, date, time, category_id)
+      VALUES ($1, $2, $3, $4, $5);
+
+  read-expense-by-id:
+    kind: postgres-sql
+    source: toolbox-db
+    description: Read an expense by id
+    parameters:
+      - name: id
+        type: string
+        description: Id of the expense
+    statement: |
+      SELECT e.id, e.description, e.amount, e.date, e.time, e.category_id, c.name as category_name
+      FROM expenses e
+      LEFT JOIN expense_categories c ON e.category_id = c.id
+      WHERE e.id = $1;
+
+  read-expenses:
+    kind: postgres-sql
+    source: toolbox-db
+    description: Read all expenses
+    parameters: []
+    statement: |
+      SELECT e.id, e.description, e.amount, e.date, e.time, e.category_id, c.name as category_name
+      FROM expenses e
+      LEFT JOIN expense_categories c ON e.category_id = c.id
+      ORDER BY e.date DESC, e.time DESC;
+
+  update-expense-by-id:
+    kind: postgres-sql
+    source: toolbox-db
+    description: Update an expense by id
+    parameters:
+      - name: id
+        type: string
+        description: Id of the expense
+      - name: description
+        type: string
+        description: Description of the expense
+      - name: amount
+        type: float
+        description: Amount of the expense
+      - name: date
+        type: string
+        description: Date of the expense
+      - name: time
+        type: string
+        description: Time of the expense
+      - name: category_id
+        type: string
+        description: Id of the expense category
+    statement: |
+      UPDATE expenses 
+      SET description = $2, amount = $3, date = $4, time = $5, category_id = $6 
+      WHERE id = $1;
+
+  delete-expense-by-id:
+    kind: postgres-sql
+    source: toolbox-db
+    description: Delete an expense by id
+    parameters:
+      - name: id
+        type: string
+        description: Id of the expense
+    statement: |
+      DELETE FROM expenses WHERE id = $1;
+
+toolsets:
+  pfa-toolset:
+    - create-expense-category
+    - read-expense-category-by-id
+    - read-expense-categories
+    - update-expense-category-by-id
+    - delete-expense-category-by-id
+    - create-expense
+    - read-expense-by-id
+    - read-expenses
+    - update-expense-by-id
+    - delete-expense-by-id
