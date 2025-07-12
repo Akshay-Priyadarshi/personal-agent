@@ -1,11 +1,12 @@
 from typing import Any
 
 from google.adk.agents import Agent, BaseAgent
+from toolbox_core import ToolboxSyncClient
 
 from agents.personal_finance_assistant.models import Expense, ExpenseCategory
-from agents.personal_finance_assistant.sub_agents.expense_tracking_assistant.tools import (  # noqa: E501
-    add_expense,
-    add_expense_category,
+from agents.personal_finance_assistant.tools import (
+    get_user_name,
+    save_user_name,
 )
 from common_models import BaseAdkAgent
 from common_tools import get_current_date, get_current_time
@@ -38,6 +39,8 @@ class ExpenseTrackingAssistant(BaseAdkAgent):
         )
 
     def _build_agent(self) -> BaseAgent:
+        toolbox = ToolboxSyncClient(url='http://127.0.0.1:5000')
+        pfa_tools = toolbox.load_toolset('pfa-toolset')
         return Agent(
             model='gemini-2.0-flash',
             name='expense_tracking_assistant',
@@ -51,21 +54,20 @@ class ExpenseTrackingAssistant(BaseAdkAgent):
             """,
             instruction=self._build_instruction(),
             tools=[
+                save_user_name,
+                get_user_name,
                 get_current_date,
                 get_current_time,
-                add_expense,
-                add_expense_category,
+                *pfa_tools,
             ],
             before_agent_callback=self.before_agent_callback,
         )
 
     def test_prompts():
         prompts: list[str] = [
-            'Please add an expense of 180 rs for a pack of cigarette today 10 am, category is Habits'
+            'Please add an expense of 180 rs for a pack of cigarette today 10 am, category is Habits'  # noqa: E501
         ]
         return prompts
 
 
-root_agent = ExpenseTrackingAssistant(
-    initial_state={'user:expenses': [], 'user:expense_categories': []}
-)
+root_agent = ExpenseTrackingAssistant()

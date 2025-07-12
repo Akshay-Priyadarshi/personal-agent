@@ -1,7 +1,7 @@
 from typing import Any
 
 from google.adk.agents import Agent, BaseAgent
-from tools import save_user_name
+from tools import get_user_name, save_user_name
 
 from agents.personal_finance_assistant.sub_agents import (
     ExpenseTrackingAssistant,
@@ -34,17 +34,17 @@ financial advice to improve their financial well-being.
             """,
             instruction=self._build_instruction(),
             tools=[
+                save_user_name,
+                get_user_name,
                 get_current_date,
                 get_current_time,
-                save_user_name,
                 google_search,
             ],
             before_agent_callback=self.before_agent_callback,
             sub_agents=[
                 ExpenseTrackingAssistant(
                     initial_state={
-                        'user:expenses': [],
-                        'user:expense_categories': [],
+                        **self.initial_state,
                     }
                 ).adk_agent
             ],
