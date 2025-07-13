@@ -3,7 +3,6 @@
 
 # imports
 import asyncio
-import os
 
 from uuid import uuid4
 
@@ -33,6 +32,13 @@ logger = LoggerUtils.get_logger(
         int(EnvironmentUtils.read_env_var('APP_LOG_LEVEL'))
     ),
     file_path='./clients/cli/cli_client.log',
+)
+chat_logger = LoggerUtils.get_logger(
+    __name__,
+    level=LoggerUtils.LogLevel(
+        int(EnvironmentUtils.read_env_var('APP_LOG_LEVEL'))
+    ),
+    file_path='./clients/cli/cli_client_chat.log',
 )
 
 
@@ -71,6 +77,7 @@ Type '/exit' to quit.
         )
         while True:
             user_input = input('\nUser 🧑: ')
+            chat_logger.info(f'\nUser 🧑: {user_input}')
             if user_input.strip().lower() == '/exit':
                 logger.info('Exiting chat.')
                 break
@@ -118,6 +125,7 @@ Type '/exit' to quit.
                             extra={'agent_reply': content},
                         )
                         print('\nAgent 🤖: ', content)
+                        chat_logger.info(f'\nAgent 🤖: {content}')
                     else:
                         logger.warn("No 'response' artifact found.")
                 except Exception as e:
