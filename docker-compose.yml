@@ -14,7 +14,7 @@ services:
       db:
         condition: service_healthy
   db:
-    image: postgres:latest
+    image: postgres-multi:latest
     hostname: db
     platform: linux/arm64
     ports:
@@ -30,7 +30,7 @@ services:
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
-      - POSTGRES_DB=toolbox_db
+      - POSTGRES_MULTIPLE_DATABASES=toolbox_db,auth
     networks:
       - toolbox-network
 networks:
