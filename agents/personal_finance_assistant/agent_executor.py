@@ -1,3 +1,5 @@
+import os
+
 from typing import override
 
 from a2a.server.agent_execution import RequestContext
@@ -28,10 +30,8 @@ class PersonalFinancialAgentExecutor(BaseAdkAgentExecutor):
     and financial analysis, within the A2A agent framework.
     """
 
-    def __init__(self, initial_state: dict | None = None):
-        self.initial_state = initial_state.copy() if initial_state else {}
-        self.initial_state.setdefault('user:name', '')
-        super().__init__()
+    def __init__(self, initial_state: dict | None):
+        super().__init__(initial_state=initial_state)
         self.status_message = 'Processing your request...'
         self.artifact_name = 'response'
 
@@ -41,12 +41,15 @@ class PersonalFinancialAgentExecutor(BaseAdkAgentExecutor):
 
     @override
     def _build_runner(self) -> Runner:
+        meta_database_url = os.environ.get("META_DATABASE_URL")
+        if not meta_database_url:
+            raise ValueError(
+                "meta_database_url environment variable is not set"
+            )
         return Runner(
             app_name=self.adk_agent.name,
             agent=self.adk_agent,
-            session_service=DatabaseSessionService(
-                'sqlite:///./agents/personal_finance_assistant/adk.db'
-            ),
+            session_service=DatabaseSessionService(db_url=meta_database_url),
             memory_service=InMemoryMemoryService(),
             artifact_service=InMemoryArtifactService(),
         )

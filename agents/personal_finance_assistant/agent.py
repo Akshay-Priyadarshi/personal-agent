@@ -42,11 +42,7 @@ financial advice to improve their financial well-being.
             ],
             before_agent_callback=self.before_agent_callback,
             sub_agents=[
-                ExpenseTrackingAssistant(
-                    initial_state={
-                        **self.initial_state,
-                    }
-                ).adk_agent
+                ExpenseTrackingAssistant().adk_agent
             ],
         )
 
@@ -55,7 +51,6 @@ financial advice to improve their financial well-being.
             template_text=FileUtils.read_file_relative(
                 __file__, 'instruction.md'
             ),
-            variables={},
         )
 
 

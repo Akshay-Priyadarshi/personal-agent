@@ -29,14 +29,19 @@ class BaseAdkAgentExecutor(AgentExecutor):
 
     def __init__(
         self,
+        initial_state: dict | None = None,
     ):
         """Initialize a generic ADK agent executor.
+            initial_state (dict | None): Optional initial state for the agent
+            executor.
 
-        Args:
-            agent: The ADK agent instance
-            status_message: Message to display while processing
-            artifact_name: Name for the response artifact
+        Attributes:
+            initial_state (dict | None): Stores the initial state.
+            agent: The built agent instance.
+            adk_agent: The ADK agent extracted from the built agent.
+            runner: The runner instance built for executing the agent.
         """
+        self.initial_state = initial_state
         self.agent = self._build_agent()
         self.adk_agent = self.agent.adk_agent
         self.runner = self._build_runner()

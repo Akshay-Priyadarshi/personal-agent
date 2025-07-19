@@ -1,3 +1,4 @@
+\connect app
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE IF NOT EXISTS expense_categories (

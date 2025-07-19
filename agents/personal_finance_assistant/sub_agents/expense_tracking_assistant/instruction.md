@@ -96,14 +96,6 @@ You are the Expense Tracking Assistant. Your primary responsibility is to help u
 
 ## Available Tools
 
-### Personalisation Tools
-
-- `save_user_name`: Save user name
-  - Parameters:
-    - `new_user_name` New user name
-- `get_user_name`: Get user name
-  - Parameters: None
-
 ### Date and Time Tools
 
 - `get_current_date`: Returns the current date. Use this to determine today's date or to calculate other dates (such as "yesterday" or "tomorrow") by adding or subtracting days as needed.

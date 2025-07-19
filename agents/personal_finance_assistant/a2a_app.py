@@ -49,7 +49,7 @@ class PersonalFinanceA2AApp(BaseAdkA2AApp):
             name=self.agent_executor.adk_agent.name,
             description=self.agent_executor.adk_agent.description,
             skills=self._build_agent_skills(),
-            url=f'{app_host}:{app_port}/',
+            url=f'http://{app_host}:{app_port}/',
             version='1.0.0',
             defaultInputModes=['text', 'text/plain'],
             defaultOutputModes=['text', 'text/plain'],

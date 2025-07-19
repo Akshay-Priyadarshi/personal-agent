@@ -6,6 +6,7 @@ from a2a.server.apps import A2AFastAPIApplication, JSONRPCApplication
 from a2a.server.request_handlers import DefaultRequestHandler, RequestHandler
 from a2a.server.tasks import InMemoryTaskStore
 from a2a.types import AgentCapabilities, AgentCard, AgentSkill
+from fastapi.middleware.cors import CORSMiddleware
 
 from common_models.base_adk_agent_executor import BaseAdkAgentExecutor
 
@@ -68,10 +69,17 @@ class BaseAdkA2AApp(ABC):
         )
 
     def _build_a2a_app(self) -> JSONRPCApplication:
-        return A2AFastAPIApplication(
+        return  A2AFastAPIApplication(
             agent_card=self.agent_card,
             http_handler=self._build_request_handler(),
         )
 
     def start(self, host: str, port: int) -> None:
-        uvicorn.run(self.a2a_app.build(), host=host, port=port)
+        app = self.a2a_app.build()
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=["*"],
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
+        uvicorn.run(app, host=host, port=port)

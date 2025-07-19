@@ -21,16 +21,16 @@ services:
       - "5432:5432"
     volumes:
       - ./db:/var/lib/postgresql/data
-      - ./config/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./config/app_init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d toolbox_db"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d app"]
       interval: 10s
       timeout: 5s
       retries: 5
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
-      - POSTGRES_MULTIPLE_DATABASES=toolbox_db,auth
+      - POSTGRES_MULTIPLE_DATABASES=app,auth,meta
     networks:
       - toolbox-network
 networks:
