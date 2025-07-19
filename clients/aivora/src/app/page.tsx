@@ -1,7 +1,10 @@
+import { ChatWindow, Header } from "@/components";
+
 export default function Home() {
 	return (
-		<div className="flex flex-col justify-center items-center">
-			<h1>Hello World</h1>
+		<div className="px-16 h-screen w-screen flex flex-col overflow-hidden">
+			<Header />
+			<ChatWindow />
 		</div>
 	);
 }
