@@ -40,7 +40,11 @@ class PersonalFinanceA2AApp(BaseAdkA2AApp):
         ]
 
     def _build_agent_capabilities(self) -> AgentCapabilities:
-        return AgentCapabilities()
+        return AgentCapabilities(
+                streaming=True,
+                pushNotifications=False,
+                stateTransitionHistory=False
+            )
 
     def _build_agent_card(self) -> AgentCard:
         app_host = EnvironmentUtils.read_env_var('APP_HOST')
@@ -53,5 +57,5 @@ class PersonalFinanceA2AApp(BaseAdkA2AApp):
             version='1.0.0',
             defaultInputModes=['text', 'text/plain'],
             defaultOutputModes=['text', 'text/plain'],
-            capabilities=AgentCapabilities(streaming=True),
+            capabilities=self._build_agent_capabilities(),
         )

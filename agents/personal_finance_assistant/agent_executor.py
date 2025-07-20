@@ -64,48 +64,62 @@ class PersonalFinancialAgentExecutor(BaseAdkAgentExecutor):
     async def execute(
         self, context: RequestContext, event_queue: EventQueue
     ) -> None:
+        # Initialize TaskUpdater with current task/context
         updater = TaskUpdater(event_queue, context.task_id, context.context_id)
         user_id = 'awwwkshay'
         task = context.current_task
+
+        # ✉️ If no existing task, submit a new one
         if task is None:
             await updater.submit()
             task = new_task(context.message)
 
+        # Emit initial event with the task
         await updater.event_queue.enqueue_event(task)
+
+        # Signal that work has started
         await updater.start_work()
 
         try:
-            # get app session
+            # 1️⃣ Retrieve or create ADK session
             session = await self.get_app_session(
-                context=context, user_id=user_id
+                context=context,
+                user_id=user_id
             )
 
-            # get user message content
+            # 2️⃣ Extract user's input message
             user_message_content = await self.get_user_message_content(
                 context=context
             )
 
-            # get agent response text with the user content
+            # 4️⃣ After streaming, collect final response via ADK (fallback
+            # or summary)
             agent_response_text = await self.get_agent_response_text(
                 session_id=session.id,
                 user_id=user_id,
                 user_message_content=user_message_content,
+                updater=updater,
+                task=task
             )
 
-            # send the final response as an artifact
+            # 📦 Add final output as an artifact
             await updater.add_artifact(
                 parts=[TextPart(text=agent_response_text)],
                 name=self.artifact_name,
             )
 
-            # send task completed
-            await updater.complete()
+            # ✅ Mark task as completed
+            await  updater.update_status(
+                TaskState.completed,
+                final=True
+            )
+
         except Exception as e:
             logger.exception(e)
+            # 🚨 On error, send failure update and finalize
             await updater.update_status(
                 TaskState.failed,
-                new_agent_text_message(
-                    f'Error: {e!s}', task.contextId, task.id
-                ),
+                new_agent_text_message(f"Error: {e}", task.contextId, task.id),
                 final=True,
             )
+

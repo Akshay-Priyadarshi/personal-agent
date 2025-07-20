@@ -23,14 +23,14 @@ services:
       - ./db:/var/lib/postgresql/data
       - ./config/app_init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d app"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d toolbox_db"]
       interval: 10s
       timeout: 5s
       retries: 5
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
-      - POSTGRES_MULTIPLE_DATABASES=app,auth,meta
+      - POSTGRES_MULTIPLE_DATABASES=toolbox_db,auth,meta
     networks:
       - toolbox-network
 networks:

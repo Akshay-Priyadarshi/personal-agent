@@ -1,4 +1,4 @@
-\connect app
+\connect toolbox_db
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE IF NOT EXISTS expense_categories (

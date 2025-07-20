@@ -2,7 +2,9 @@ from abc import abstractmethod
 
 from a2a.server.agent_execution import AgentExecutor, RequestContext
 from a2a.server.events import EventQueue
-from a2a.types import Role
+from a2a.server.tasks import TaskUpdater
+from a2a.types import Role, Task, TaskState
+from a2a.utils import new_agent_text_message
 from google.adk.agents.callback_context import CallbackContext
 from google.adk.runners import Runner
 from google.adk.sessions import Session
@@ -115,7 +117,12 @@ class BaseAdkAgentExecutor(AgentExecutor):
         )
 
     async def get_agent_response_text(
-        self, session_id: str, user_id: str, user_message_content: types.Content
+        self,
+        session_id: str,
+        user_id: str,
+        user_message_content: types.Content,
+        updater: TaskUpdater,
+        task: Task
     ) -> str:
         response_text = ''
         async for event in self.runner.run_async(
@@ -123,6 +130,7 @@ class BaseAdkAgentExecutor(AgentExecutor):
             session_id=session_id,
             new_message=user_message_content,
         ):
+            logger.info("event recieved from agent", extra={"event":event})
             if (
                 event.is_final_response()
                 and event.content
@@ -132,8 +140,14 @@ class BaseAdkAgentExecutor(AgentExecutor):
                     if part.text:
                         response_text += part.text + '\n'
                     elif part.function_call:
-                        # Log or handle function calls if needed
-                        pass  # Function calls are handled internally by ADK
+                        await updater.update_status(
+                            TaskState.working,
+                            new_agent_text_message(
+                                f"Calling function `{part.function_call.name}`",
+                                session_id,
+                                task.id
+                            )
+                        )
                     elif part.file_data:
                         file_mime_type = part.file_data.mime_type
                         logger.info(

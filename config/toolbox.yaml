@@ -3,7 +3,7 @@ sources:
     kind: postgres
     host: db
     port: 5432
-    database: app
+    database: toolbox_db
     user: postgres
     password: postgres
 
