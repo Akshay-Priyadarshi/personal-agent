@@ -4,6 +4,7 @@ from google.adk.agents import Agent, BaseAgent
 from toolbox_core import ToolboxSyncClient
 
 from agents.personal_finance_assistant.models import Expense, ExpenseCategory
+from agents.personal_finance_assistant.tools.user import get_user_name
 from common_models import BaseAdkAgent
 from common_tools import get_current_date, get_current_time
 from common_utils import FileUtils, StringUtils
@@ -50,6 +51,7 @@ class ExpenseTrackingAssistant(BaseAdkAgent):
             """,
             instruction=self._build_instruction(),
             tools=[
+                get_user_name,
                 get_current_date,
                 get_current_time,
                 *pfa_tools,
